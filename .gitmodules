@@ -1,0 +1,3 @@
+[submodule "react-playground"]
+	path = react-playground
+	url = https://github.com/deko95/react-playground.git
