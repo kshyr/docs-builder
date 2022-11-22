@@ -1,205 +1,21 @@
-"use client";
-
+import Link from "next/link";
 import styles from "../styles/page.module.css";
-import {
-  Sandpack,
-  SandpackCodeEditor,
-  SandpackPreview,
-  SandpackProvider,
-  SandpackThemeProvider as SandpackLayout,
-  useActiveCode,
-  useSandpack,
-} from "@codesandbox/sandpack-react";
-import prettier from "prettier";
-import parserBabel from "prettier/parser-babel";
-import {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { sandpackDark } from "@codesandbox/sandpack-themes";
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-
-const code = `import { useState } from "react";
-import "./index.scss"
-
-export default function App() {
-  const [count, setCount] = useState(0);
-  
-  return (
-    <main>
-      <h1>Hello</h1>
-      <button
-        onClick={() => setCount(count + 1)}
-      >
-        Count: {count}
-      </button>
-    </main>
-  );
-}`;
-
-const sass = `body {
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-  Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
-main {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-@for $i from 1 to 6 {
-  .paragraph-#{$i} {
-    font-size: 10px*$i;
-  }
-}`;
-
-type PrettierProps = {
-  codemirrorInstance: MutableRefObject<any>;
-  runFormat: boolean;
-  setRunFormat: (runFormat: boolean) => void;
-};
-
-// https://codesandbox.io/s/1po91?file=/src/App.js
-const Prettier = ({
-  codemirrorInstance,
-  runFormat,
-  setRunFormat,
-}: PrettierProps) => {
-  const [prettierCode, setPrettierCode] = useState<string | null>("");
-  const { sandpack } = useSandpack();
-  const activeCode = useActiveCode();
-
-  const runPrettier = useCallback(() => {
-    setRunFormat(false);
-    if (activeCode.code) {
-      try {
-        const formatted = prettier.format(activeCode.code, {
-          parser: "babel",
-          plugins: [parserBabel],
-        });
-
-        setPrettierCode(formatted);
-      } catch {}
-    }
-  }, [activeCode.code]);
-
-  useEffect(() => {
-    if (runFormat) {
-      const debounce = setTimeout(runPrettier, 0);
-      return () => {
-        setRunFormat(false);
-        clearInterval(debounce);
-      };
-    }
-  }, [runFormat]);
-
-  useEffect(() => {
-    if (prettierCode) {
-      const cmInstance = codemirrorInstance.current.getCodemirror();
-
-      if (cmInstance) {
-        const trans = cmInstance.state.update({
-          selection: cmInstance.state.selection,
-          changes: {
-            from: 0,
-            to: cmInstance.state.doc.length,
-            insert: prettierCode,
-          },
-        });
-
-        cmInstance.update([trans]);
-      }
-      // @ts-ignore
-      sandpack.updateFile(sandpack.activePath, prettierCode);
-
-      setPrettierCode(null);
-    }
-  }, [prettierCode]);
-
-  return null;
-};
 
 export default function Home() {
-  const codemirrorInstance = useRef();
-  const [runFormat, setRunFormat] = useState(false);
-
-  useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.key === "s") {
-        e.preventDefault();
-        setRunFormat(true);
-      }
-    });
-  }, []);
-
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-        <h1 className={styles.title}>React playground</h1>
+        <h1 className={styles.title}>Work in progress...</h1>
         <p className={styles.description}>
-          Supports Tailwind CSS and Sass. <br></br>Prettier on{" "}
-          <kbd className="rounded-md border border-[#474747] bg-[#212121] p-[2px]">
-            ctrl + s
-          </kbd>{" "}
-          (<i>in progress</i>)
-        </p>
-
-        <SandpackProvider
-          template="react"
-          files={{
-            "/App.js": code,
-            "/index.scss": sass,
-          }}
-          customSetup={{
-            dependencies: {
-              sass: "^1.56.1",
-            },
-          }}
-          options={{
-            externalResources: [
-              "https://unpkg.com/@tailwindcss/ui/dist/tailwind-ui.min.css",
-            ],
-          }}
-        >
-          <SandpackLayout
-            theme={sandpackDark}
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              maxHeight: "430px",
-            }}
+          You can check{" "}
+          <Link
+            href={"/react-playground"}
+            className="bg-gradient-to-b from-green-300 to-green-800 bg-clip-text font-semibold text-transparent"
           >
-            <SandpackCodeEditor
-              //@ts-ignore
-              ref={codemirrorInstance}
-              style={{
-                minWidth: "500px",
-                maxWidth: "500px",
-              }}
-              wrapContent={true}
-            />
-            <Prettier
-              codemirrorInstance={codemirrorInstance}
-              runFormat={runFormat}
-              setRunFormat={setRunFormat}
-            />
-            <SandpackPreview
-              showOpenInCodeSandbox={false}
-              showRefreshButton={false}
-              style={{
-                minWidth: "80%",
-                maxWidth: "80%",
-              }}
-            />
-          </SandpackLayout>
-        </SandpackProvider>
+            React playground
+          </Link>{" "}
+          in the meantime.
+        </p>
       </main>
     </div>
   );
